@@ -9,18 +9,23 @@ const videoFiles = Array.from({ length: 12 }).map(
   (_, idx) => `stock-video-${idx + 1}.webm`
 );
 
+type VideoMetadata = {
+  description: string;
+  name: string;
+};
+
 export default function Home() {
-  const [allMetadata, setAllMetadata] = useState<{ description: string }[]>([]);
+  const [allMetadata, setAllMetadata] = useState<VideoMetadata[]>([]);
   useEffect(() => {
     async function fetchJSON() {
       const allMetadata = await Promise.all(
         Array.from({ length: 12 }).map(async (_, idx) => {
           try {
             const response = await fetch(`stock-video-${idx + 1}.json`);
-            const data: { description: string } = await response.json();
+            const data: VideoMetadata = await response.json();
             return data;
           } catch (error) {
-            return { description: "" };
+            return { description: "", name: "" };
           }
         })
       );
@@ -44,7 +49,7 @@ export default function Home() {
                 translateZ="50"
                 className="text-xl font-bold text-neutral-600 dark:text-white"
               >
-                {videoSrc}
+                {allMetadata[idx]?.name}
               </CardItem>
               <CardItem
                 as="p"
