@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import LlamaAI from "llamaai";
 import srtParser2 from "srt-parser-2";
@@ -14,7 +14,11 @@ import {
   CardFooter,
 } from "./ui/card";
 import { TextGenerateEffect } from "./ui/text-generate-effect";
-import { ShareIcon } from "lucide-react";
+
+type VideoMetadata = {
+  description: string;
+  name: string;
+};
 
 const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -119,12 +123,39 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
     setGeneratingResponse(false);
   };
 
+  const [metadata, setMetadata] = useState<VideoMetadata>({
+    description: "",
+    name: "",
+  });
+  useEffect(() => {
+    async function fetchJSON() {
+      try {
+        const response = await fetch(src.replace(".webm", ".json"));
+        const data: VideoMetadata = await response.json();
+        setMetadata(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchJSON();
+  }, [src]);
+
   return (
     <div className="grid w-full grid-cols-1 md:grid-cols-3 gap-2 justify-items-center p-10">
-      <video controls ref={videoRef} className="col-span-2">
-        <source src={src} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+      <div className="flex flex-col col-span-2 gap-6">
+        <video controls ref={videoRef}>
+          <source src={src} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div className="flex flex-col">
+          <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+            {metadata.name}
+          </h2>
+          <p className="leading-7 [&:not(:first-child)]:mt-6">
+            {metadata.description}
+          </p>
+        </div>
+      </div>
       <Tabs defaultValue="context" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="context">Context</TabsTrigger>
