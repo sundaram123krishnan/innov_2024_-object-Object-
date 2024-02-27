@@ -33,7 +33,6 @@ export default function Home() {
           }
         })
       );
-      console.log(allMetadata);
       setAllMetadata(allMetadata);
     }
     fetchJSON();
@@ -48,7 +47,6 @@ export default function Home() {
       title: response.ok ? "Success" : "Error",
       description: await response.text(),
     });
-    console.log(response.ok);
   }
 
   return (
