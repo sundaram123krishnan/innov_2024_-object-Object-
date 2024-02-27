@@ -2,15 +2,41 @@
 
 import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
 import ThumbnailGenerator from "@/components/thumbnail-provider";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const videoFiles = Array.from({ length: 12 }).map(
   (_, idx) => `stock-video-${idx + 1}.webm`
 );
 
 export default function Home() {
+  const [allMetadata, setAllMetadata] = useState<{ description: string }[]>([]);
+  useEffect(() => {
+    async function fetchJSON() {
+      const allMetadata = await Promise.all(
+        Array.from({ length: 12 }).map(async (_, idx) => {
+          try {
+            const response = await fetch(`stock-video-${idx + 1}.json`);
+            const data: { description: string } = await response.json();
+            return data;
+          } catch (error) {
+            return { description: "" };
+          }
+        })
+      );
+      console.log(allMetadata);
+      setAllMetadata(allMetadata);
+    }
+    fetchJSON();
+  }, []);
+
+  useEffect(() => {
+    console.log(allMetadata);
+  });
+
   return (
     <div className="flex flex-wrap gap-10 justify-evenly">
-      {videoFiles.map((videoSrc) => {
+      {videoFiles.map((videoSrc, idx) => {
         return (
           <CardContainer className="inter-var" key={videoSrc}>
             <CardBody className="bg-gray-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border  ">
@@ -25,7 +51,7 @@ export default function Home() {
                 translateZ="60"
                 className="text-neutral-500 text-sm max-w-sm mt-2 dark:text-neutral-300"
               >
-                metadata...
+                {allMetadata[idx]?.description}
               </CardItem>
               <CardItem translateZ="100" className="w-full mt-4">
                 <ThumbnailGenerator videoSrc={videoSrc} />
@@ -43,7 +69,7 @@ export default function Home() {
                   as="button"
                   className="px-4 py-2 rounded-xl bg-black dark:bg-white dark:text-black text-white text-xs font-bold"
                 >
-                  Watch now
+                  <Link href={`/video/${videoSrc}`}>Watch now</Link>
                 </CardItem>
               </div>
             </CardBody>
