@@ -1,8 +1,7 @@
 "use client";
 
 import VideoPlayer from "@/components/video-player";
-import { NavbarDemo } from "../../components/Navbar";
-import MyComponent from "../../components/SampleTextGen";
+import MyComponent from "../../components/llama-prompt";
 
 //LL-dlIgQVFTLtpQ66uuFfPlW2DMMtbq317E8KmWvS3l6CQv7KB6zmBaeuVKPBfWlyrC
 

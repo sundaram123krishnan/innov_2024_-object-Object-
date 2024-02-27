@@ -1,5 +1,7 @@
-import React, { useRef, useState } from 'react';
-import { Button } from './ui/button';
+import React, { useRef, useState } from "react";
+import { Button } from "./ui/button";
+import LlamaAI from "llamaai";
+import srtParser2 from "srt-parser-2";
 
 const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -34,7 +36,7 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
         // @ts-ignore
         const stream = videoRef.current.captureStream();
         mediaRecorder = new MediaRecorder(stream, {
-          mimeType: 'video/webm',
+          mimeType: "video/webm",
         });
 
         const chunks: Blob[] = [];
@@ -46,7 +48,7 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
         };
 
         mediaRecorder.onstop = () => {
-          const clipBlob = new Blob(chunks, { type: 'video/webm' });
+          const clipBlob = new Blob(chunks, { type: "video/webm" });
           setClipBlob(URL.createObjectURL(clipBlob));
         };
 
@@ -58,8 +60,66 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
           mediaRecorder?.stop();
         }, (endTime - startTime) * 1000);
       } catch (error) {
-        console.error('Error capturing video:', error);
+        console.error("Error capturing video:", error);
       }
+    }
+  };
+
+  const [response, setResponse] = useState("");
+
+  const apiToken =
+    "LL-dlIgQVFTLtpQ66uuFfPlW2DMMtbq317E8KmWvS3l6CQv7KB6zmBaeuVKPBfWlyrC";
+  const llamaAPI = new LlamaAI(apiToken);
+
+  const generateContext = async () => {
+    const currentTime = videoRef.current?.currentTime as number;
+    try {
+      const response = await fetch(src.replace(".webm", ".srt"));
+      const data = await response.text();
+      const parser = new srtParser2();
+
+      let srtArray = parser.fromSrt(data);
+      srtArray = srtArray.filter((srt) => {
+        return (
+          srt.startSeconds <= currentTime &&
+          srt.startSeconds >= currentTime - 30
+        );
+      });
+      const apiRequestJson = {
+        messages: [
+          {
+            role: "user",
+            content: `Explain these subtitles: ${srtArray
+              .map((srt) => srt.text)
+              .join(";")}`,
+          },
+        ],
+        stream: false,
+      };
+      const messages = await llamaAPI.run(apiRequestJson);
+      console.log(messages);
+    } catch (error) {
+      console.error(error);
+    }
+
+    return;
+
+    try {
+      const apiRequestJson = {
+        messages: [{ role: "user", content: "" }],
+        stream: false,
+      };
+
+      const messages = await llamaAPI.run(apiRequestJson);
+      console.log(messages.choices[0].message.content);
+      if (messages) {
+        setResponse(messages.choices[0].message.content);
+      } else {
+        setResponse("No response received");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setResponse("Error fetching response");
     }
   };
 
@@ -69,6 +129,7 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
         <source src={src} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+      <Button onClick={() => generateContext()}>Generate context</Button>
       {isClipping ? (
         <div>
           <p>Clipping...</p>
