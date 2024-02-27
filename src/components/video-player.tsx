@@ -1,15 +1,14 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState } from 'react';
+import { Button } from './ui/button';
 
-interface VideoPlayerProps {
-  src: string;
-}
-
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ src }) => {
+const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [startTime, setStartTime] = useState<number>(0);
   const [endTime, setEndTime] = useState<number>(0);
   const [isClipping, setIsClipping] = useState<boolean>(false);
   const [clipBlob, setClipBlob] = useState<string | null>(null);
+
+  let mediaRecorder: MediaRecorder | null = null;
 
   const handleClipStart = () => {
     if (videoRef.current) {
@@ -25,21 +24,17 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src }) => {
     }
   };
 
-  const handleGenerateClip = async () => {
+  const handleGenerateClip = () => {
     if (clipBlob) {
       window.URL.revokeObjectURL(clipBlob);
     }
 
     if (videoRef.current && startTime < endTime) {
       try {
-        const stream = await captureStreamBetweenTimes(
-          videoRef.current,
-          startTime,
-          endTime
-        );
-
-        const mediaRecorder = new MediaRecorder(stream, {
-          mimeType: "video/webm",
+        // @ts-ignore
+        const stream = videoRef.current.captureStream();
+        mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'video/webm',
         });
 
         const chunks: Blob[] = [];
@@ -51,52 +46,21 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src }) => {
         };
 
         mediaRecorder.onstop = () => {
-          const clipBlob = new Blob(chunks, { type: "video/webm" });
+          const clipBlob = new Blob(chunks, { type: 'video/webm' });
           setClipBlob(URL.createObjectURL(clipBlob));
         };
 
         mediaRecorder.start();
 
+        videoRef.current.currentTime = startTime;
+
         setTimeout(() => {
-          mediaRecorder.stop();
+          mediaRecorder?.stop();
         }, (endTime - startTime) * 1000);
       } catch (error) {
-        console.error("Error capturing video:", error);
+        console.error('Error capturing video:', error);
       }
     }
-  };
-
-  const captureStreamBetweenTimes = (
-    video: HTMLVideoElement,
-    startTime: number,
-    endTime: number
-  ): Promise<MediaStream> => {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-
-      if (!ctx) {
-        reject(new Error("Canvas context not available"));
-        return;
-      }
-
-      const stream = canvas.captureStream();
-
-      const captureFrame = (time: number) => {
-        if (video.currentTime >= endTime) {
-          clearInterval(intervalId);
-          resolve(stream);
-        } else {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        }
-      };
-
-      const intervalId = setInterval(captureFrame, 100, startTime);
-
-      video.currentTime = startTime;
-    });
   };
 
   return (
@@ -108,12 +72,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src }) => {
       {isClipping ? (
         <div>
           <p>Clipping...</p>
-          <button onClick={handleClipEnd}>End Clip</button>
+          <Button onClick={handleClipEnd}>End Clip</Button>
         </div>
       ) : (
-        <button onClick={handleClipStart}>Start Clip</button>
+        <Button onClick={handleClipStart}>Start Clip</Button>
       )}
-      <button onClick={handleGenerateClip}>Generate Clip</button>
+      <Button onClick={handleGenerateClip}>Generate Clip</Button>
       {clipBlob && (
         <div>
           <p>Clip generated!</p>
