@@ -4,6 +4,9 @@ import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
 import ThumbnailGenerator from "@/components/thumbnail-provider";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/components/ui/use-toast";
 
 const videoFiles = Array.from({ length: 12 }).map(
   (_, idx) => `stock-video-${idx + 1}.webm`
@@ -15,6 +18,7 @@ type VideoMetadata = {
 };
 
 export default function Home() {
+  const { toast } = useToast();
   const [allMetadata, setAllMetadata] = useState<VideoMetadata[]>([]);
   useEffect(() => {
     async function fetchJSON() {
@@ -34,6 +38,18 @@ export default function Home() {
     }
     fetchJSON();
   }, []);
+
+  async function addToWatchLater(filename: string) {
+    const response = await fetch("/api/watch_later", {
+      method: "POST",
+      body: JSON.stringify(filename),
+    });
+    toast({
+      title: response.ok ? "Success" : "Error",
+      description: await response.text(),
+    });
+    console.log(response.ok);
+  }
 
   return (
     <div className="flex flex-wrap gap-10 justify-evenly">
@@ -60,10 +76,14 @@ export default function Home() {
               <div className="flex justify-between items-center mt-20">
                 <CardItem
                   translateZ={20}
-                  as="button"
                   className="px-4 py-2 rounded-xl text-xs font-normal dark:text-white"
                 >
-                  Add to watch later
+                  <Button
+                    onClick={() => addToWatchLater(videoSrc)}
+                    variant="ghost"
+                  >
+                    Add to watch later
+                  </Button>
                 </CardItem>
                 <CardItem
                   translateZ={20}
