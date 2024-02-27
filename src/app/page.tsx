@@ -1,5 +1,10 @@
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { NavbarDemo } from "./Navbar";
 
 export default function Home() {
-  return <Button>Hello world</Button>;
+  return (
+    <div>
+      <NavbarDemo />
+    </div>
+  );
 }
