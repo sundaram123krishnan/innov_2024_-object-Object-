@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { Button } from "./ui/button";
 import LlamaAI from "llamaai";
 import srtParser2 from "srt-parser-2";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -66,12 +67,14 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
   };
 
   const [response, setResponse] = useState("");
+  const [generatingResponse, setGeneratingResponse] = useState(false);
 
   const apiToken =
     "LL-dlIgQVFTLtpQ66uuFfPlW2DMMtbq317E8KmWvS3l6CQv7KB6zmBaeuVKPBfWlyrC";
   const llamaAPI = new LlamaAI(apiToken);
 
   const generateContext = async () => {
+    setGeneratingResponse(true);
     const currentTime = videoRef.current?.currentTime as number;
     try {
       const response = await fetch(src.replace(".webm", ".srt"));
@@ -97,30 +100,11 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
         stream: false,
       };
       const messages = await llamaAPI.run(apiRequestJson);
-      console.log(messages);
+      setResponse(messages.choices[0].message.content);
     } catch (error) {
-      console.error(error);
+      setResponse(JSON.stringify(error));
     }
-
-    return;
-
-    try {
-      const apiRequestJson = {
-        messages: [{ role: "user", content: "" }],
-        stream: false,
-      };
-
-      const messages = await llamaAPI.run(apiRequestJson);
-      console.log(messages.choices[0].message.content);
-      if (messages) {
-        setResponse(messages.choices[0].message.content);
-      } else {
-        setResponse("No response received");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      setResponse("Error fetching response");
-    }
+    setGeneratingResponse(false);
   };
 
   return (
@@ -129,7 +113,17 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
         <source src={src} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-      <Button onClick={() => generateContext()}>Generate context</Button>
+      <Button onClick={() => generateContext()} disabled={generatingResponse}>
+        {generatingResponse ? (
+          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+        ) : null}
+        Generate context
+      </Button>
+      {response ? (
+        <article className="leading-7 [&:not(:first-child)]:mt-6 prose max-w-none">
+          {response}
+        </article>
+      ) : null}
       {isClipping ? (
         <div>
           <p>Clipping...</p>
