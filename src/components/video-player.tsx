@@ -3,6 +3,18 @@ import { Button } from "./ui/button";
 import LlamaAI from "llamaai";
 import srtParser2 from "srt-parser-2";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "./ui/card";
+import { TextGenerateEffect } from "./ui/text-generate-effect";
+import { ShareIcon } from "lucide-react";
 
 const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -108,40 +120,79 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
   };
 
   return (
-    <div className="video-player">
-      <video controls ref={videoRef}>
+    <div className="grid w-full grid-cols-1 md:grid-cols-3 gap-2 justify-items-center p-10">
+      <video controls ref={videoRef} className="col-span-2">
         <source src={src} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-      <Button onClick={() => generateContext()} disabled={generatingResponse}>
-        {generatingResponse ? (
-          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-        ) : null}
-        Generate context
-      </Button>
-      {response ? (
-        <article className="leading-7 [&:not(:first-child)]:mt-6 prose max-w-none">
-          {response}
-        </article>
-      ) : null}
-      {isClipping ? (
-        <div>
-          <p>Clipping...</p>
-          <Button onClick={handleClipEnd}>End Clip</Button>
-        </div>
-      ) : (
-        <Button onClick={handleClipStart}>Start Clip</Button>
-      )}
-      <Button onClick={handleGenerateClip}>Generate Clip</Button>
-      {clipBlob && (
-        <div>
-          <p>Clip generated!</p>
-          <video controls>
-            <source src={clipBlob} type="video/webm" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-      )}
+      <Tabs defaultValue="context" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="context">Context</TabsTrigger>
+          <TabsTrigger value="clips">Clips</TabsTrigger>
+        </TabsList>
+        <TabsContent value="context">
+          <Card>
+            <CardHeader>
+              <CardTitle>Get help with context</CardTitle>
+              <CardDescription>Use AI to explain the scene!</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <ScrollArea className="h-[300px] w-full">
+                {response ? <TextGenerateEffect words={response} /> : null}
+              </ScrollArea>
+            </CardContent>
+            <CardFooter>
+              <Button
+                onClick={() => generateContext()}
+                disabled={generatingResponse}
+              >
+                {generatingResponse ? (
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                Generate context
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        <TabsContent value="clips">
+          <Card>
+            <CardHeader>
+              <CardTitle>Create short clips</CardTitle>
+              <CardDescription>
+                Download short clips to share with your friends!
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <ScrollArea className="h-[300px] w-full">
+                {clipBlob && (
+                  <div className="flex flex-col">
+                    <video controls>
+                      <source src={clipBlob} type="video/webm" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                )}
+              </ScrollArea>
+            </CardContent>
+            <CardFooter className="flex gap-2">
+              {isClipping ? (
+                <div>
+                  <Button onClick={handleClipEnd} variant="secondary">
+                    End Clip
+                  </Button>
+                </div>
+              ) : (
+                <Button onClick={handleClipStart} variant="secondary">
+                  Start Clip
+                </Button>
+              )}
+              {startTime < endTime ? (
+                <Button onClick={handleGenerateClip}>Generate Clip</Button>
+              ) : null}
+            </CardFooter>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
