@@ -1,14 +1,47 @@
-export async function POST() {
-  const res = await fetch("", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "API-Key": process.env.DATA_API_KEY!,
-    },
-    body: JSON.stringify({ time: new Date().toISOString() }),
-  });
+import { ObjectId } from "mongodb";
+import { auth } from "../../../../auth";
+import clientPromise from "@/lib/mongodb";
 
-  const data = await res.json();
+type WatchLater = {
+  userId: ObjectId;
+  toWatchLater: string[];
+};
 
-  return Response.json(data);
+export async function POST(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return Response.json("Not logged in", { status: 403 });
+  }
+
+  const watchLater: string = await request.json();
+
+  try {
+    const client = await clientPromise;
+    const userWatchLater = await client
+      .db()
+      .collection<WatchLater>("watchLater")
+      .findOne({ userId: new ObjectId(session.user.id) });
+
+    if (userWatchLater === null) {
+      await client
+        .db()
+        .collection<WatchLater>("watchLater")
+        .insertOne({
+          userId: new ObjectId(session.user.id),
+          toWatchLater: [watchLater],
+        });
+    } else {
+      await client
+        .db()
+        .collection<WatchLater>("watchLater")
+        .updateOne(
+          { userId: new ObjectId(session.user.id) },
+          { $push: { toWatchLater: watchLater } }
+        );
+    }
+
+    return Response.json("Added to watch later successfully", { status: 200 });
+  } catch (error) {
+    return Response.json(JSON.stringify(error), { status: 500 });
+  }
 }
