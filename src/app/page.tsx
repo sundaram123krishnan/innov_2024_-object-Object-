@@ -3,11 +3,13 @@
 import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
 import ThumbnailGenerator from "@/components/thumbnail-provider";
 
-const videoFiles = ["stock-video-1.webm", "stock-video-2.webm"];
+const videoFiles = Array.from({ length: 12 }).map(
+  (_, idx) => `stock-video-${idx + 1}.webm`
+);
 
 export default function Home() {
   return (
-    <div className="flex gap-10 justify-evenly">
+    <div className="flex flex-wrap gap-10 justify-evenly">
       {videoFiles.map((videoSrc) => {
         return (
           <CardContainer className="inter-var" key={videoSrc}>
