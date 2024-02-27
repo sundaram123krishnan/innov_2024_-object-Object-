@@ -5,7 +5,7 @@ import {
   Menu,
   MenuItem,
   ProductItem,
-} from "./components/ui/navbar-menu";
+} from "../components/ui/navbar-menu";
 import { cn } from "../../utils/cn";
 
 export function NavbarDemo() {
