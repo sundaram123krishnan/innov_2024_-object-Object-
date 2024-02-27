@@ -45,7 +45,7 @@ export default function Navbar() {
       <Link href="/" className="mr-auto">
         <Image
           src="/favicon.png"
-          className="invert dark:invert-0"
+          className="dark:invert invert-0 p-1"
           alt="logo"
           width={40}
           height={40}
