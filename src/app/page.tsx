@@ -35,10 +35,6 @@ export default function Home() {
     fetchJSON();
   }, []);
 
-  useEffect(() => {
-    console.log(allMetadata);
-  });
-
   return (
     <div className="flex flex-wrap gap-10 justify-evenly">
       {videoFiles.map((videoSrc, idx) => {
