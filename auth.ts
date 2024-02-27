@@ -8,8 +8,10 @@ export const {
   handlers: { GET, POST },
   auth,
 } = NextAuth({
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise, {
+    databaseName: "WebStreamingPlatform",
+  }),
   providers: [google],
   session: { strategy: "database" },
-  trustHost: true
+  trustHost: true,
 });
