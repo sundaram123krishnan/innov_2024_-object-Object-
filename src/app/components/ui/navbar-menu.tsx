@@ -38,7 +38,7 @@ export const MenuItem = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={transition}
         >
-          {active === item && (
+          {/* {active === item && (
             <div className="absolute top-[calc(100%_+_1.7rem)] left-1/2 transform -translate-x-1/2">
               <motion.div
                 transition={transition}
@@ -53,7 +53,7 @@ export const MenuItem = ({
                 </motion.div>
               </motion.div>
             </div>
-          )}
+          )} */}
         </motion.div>
       )}
     </div>
@@ -109,13 +109,13 @@ export const ProductItem = ({
   );
 };
 
-export const HoveredLink = ({ children, ...rest }: any) => {
-  return (
-    <Link
-      {...rest}
-      className="text-neutral-700 dark:text-neutral-200 hover:text-black "
-    >
-      {children}
-    </Link>
-  );
-};
+// export const HoveredLink = ({ children, ...rest }: any) => {
+//   return (
+//     <Link
+//       {...rest}
+//       className="text-neutral-700 dark:text-neutral-200 hover:text-black "
+//     >
+//       {children}
+//     </Link>
+//   );
+// };
