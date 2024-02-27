@@ -45,3 +45,21 @@ export async function POST(request: Request) {
     return Response.json(JSON.stringify(error), { status: 500 });
   }
 }
+
+export async function GET() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return Response.json("Not logged in", { status: 403 });
+  }
+
+  try {
+    const client = await clientPromise;
+    const userWatchLater = await client
+      .db()
+      .collection<WatchLater>("watchLater")
+      .findOne({ userId: new ObjectId(session.user.id) });
+    return Response.json(userWatchLater, { status: 200 });
+  } catch (error) {
+    return Response.json(JSON.stringify(error), { status: 500 });
+  }
+}
