@@ -14,7 +14,7 @@ export function UserButton() {
 
 function UserButtonSkeleton() {
   return (
-    <Button variant="ghost" className="p-1.5">
+    <Button variant="outline" className="p-1.5">
       <Skeleton className="w-[26px] h-[26px] rounded-full" />
     </Button>
   );

@@ -40,7 +40,10 @@ export function UserButtonComponent({ session }: ComponentProps) {
                 key={provider}
                 onClick={() => signIn(provider)}
               >
-                <Button variant="ghost" className="gap-2 w-full justify-start">
+                <Button
+                  variant="outline"
+                  className="gap-2 w-full justify-start"
+                >
                   <Icon icon={icon} width="24px" height="24px" />
                   <span className="capitalize">{provider}</span>
                 </Button>
@@ -55,7 +58,7 @@ export function UserButtonComponent({ session }: ComponentProps) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="ghost"
+            variant="outline"
             className="px-1.5"
             aria-label="profile-button"
           >
