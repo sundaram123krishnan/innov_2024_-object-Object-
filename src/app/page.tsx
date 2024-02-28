@@ -50,7 +50,10 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-wrap gap-10 justify-evenly">
+    <div className="flex flex-wrap gap-8 justify-evenly px-2">
+      <h2 className="border-b p-2 pt-6 -mb-2 text-3xl font-semibold tracking-tight first:mt-0 w-full">
+        All videos
+      </h2>
       {videoFiles.map((videoSrc, idx) => {
         return (
           <CardContainer className="inter-var" key={videoSrc}>
