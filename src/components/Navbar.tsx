@@ -18,13 +18,13 @@ export default function Navbar() {
         />
       </Link>
 
-      <Button variant="link" className="px-4">
-        <Link href="/watch_later" className="px-4">
+      <Button variant="link">
+        <Link href="/watch_later">
           Watch later
         </Link>
       </Button>
-      <Button variant="link" className="mr-auto px-4">
-        <Link href="/history" className="px-4">
+      <Button variant="link" className="mr-auto">
+        <Link href="/history">
           History
         </Link>
       </Button>

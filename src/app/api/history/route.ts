@@ -1,6 +1,5 @@
 import clientPromise from "@/lib/mongodb";
 import { auth } from "../../../../auth";
-import { ObjectId } from "mongodb";
 
 export async function POST(request: Request) {
   const session = await auth();
