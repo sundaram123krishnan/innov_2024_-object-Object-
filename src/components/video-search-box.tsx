@@ -59,7 +59,7 @@ export function VideoSearchBox() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
-        <ScrollArea className="h-[200px] w-[300px] rounded-md border p-4">
+        <ScrollArea className="h-[400px] w-[300px] rounded-md border p-4">
           <Command>
             <CommandInput placeholder="Search" />
             <CommandEmpty>No framework found.</CommandEmpty>
@@ -73,12 +73,6 @@ export function VideoSearchBox() {
                     setOpen(false);
                   }}
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === metadata.name ? "opacity-100" : "opacity-0"
-                    )}
-                  />
                   <Button variant="link">
                     <Link href={`/video/stock-video-${idx + 1}.webm`}>
                       {metadata.name}
