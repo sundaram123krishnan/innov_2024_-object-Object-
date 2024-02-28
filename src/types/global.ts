@@ -7,3 +7,9 @@ type VideoMetadata = {
   name: string;
   description: string;
 };
+
+type WatchHistory = {
+  timestamp: number;
+  userId: string;
+  videoName: string;
+};
