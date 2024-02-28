@@ -3,17 +3,6 @@ import { ModeToggle } from "./ui/mode-toggle";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import { UserButton } from "./user-button/user-button";
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from "@/components/ui/command";
 import { VideoSearchBox } from "./video-search-box";
 
 export default function Navbar() {
