@@ -72,7 +72,6 @@ export function UserButtonComponent({ session }: ComponentProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>Profile</DropdownMenuItem>
           <DropdownMenuItem className="text-red-500" onClick={() => signOut()}>
             Log out
           </DropdownMenuItem>
