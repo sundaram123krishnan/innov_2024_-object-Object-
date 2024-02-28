@@ -12,22 +12,14 @@ export async function POST(request: Request) {
 
   try {
     const client = await clientPromise;
-    const userWatchHistory = await client
+    await client
       .db()
-      .collection<WatchHistory>("watchhistory")
-      .findOne({ userId: session.user.id });
-
-    if (userWatchHistory === null) {
-      await client
-        .db()
-        .collection<WatchHistory>("watchhistory")
-        .insertOne({
-          userId: session.user.id,
-          timestamp: Number(new Date()),
-          videoName: filename,
-        });
-    }
-
+      .collection<WatchHistory>("watchHistory")
+      .insertOne({
+        userId: session.user.id,
+        timestamp: Number(new Date()),
+        videoName: filename,
+      });
     return Response.json("Added to history", { status: 200 });
   } catch (error) {
     return Response.json(JSON.stringify(error), { status: 500 });
@@ -44,8 +36,9 @@ export async function GET() {
     const client = await clientPromise;
     const userWatchHistory = await client
       .db()
-      .collection<WatchHistory>("watchhistory")
-      .findOne({ userId: session.user.id });
+      .collection<WatchHistory>("watchHistory")
+      .find({ userId: session.user.id })
+      .toArray();
     return Response.json(userWatchHistory, { status: 200 });
   } catch (error) {
     return Response.json(JSON.stringify(error), { status: 500 });

@@ -2,54 +2,47 @@
 
 import ThumbnailGenerator from "@/components/thumbnail-provider";
 import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function WatchLater() {
-  const [data, setData] = useState<{
-    watchHistory: string;
-  }>();
-  const [isLoading, setLoading] = useState(true);
+  const [watchHistory, setWatchHistory] = useState<WatchHistory[]>([]);
 
   useEffect(() => {
     fetch("/api/history")
       .then((res) => res.json())
       .then((data) => {
-        setData(data);
         console.log(data);
-        setLoading(false);
+        setWatchHistory(data);
       });
   }, []);
 
-  const uniqueWatchSet = new Set(data?.toWatchLater);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const uniqueWatchList = Array.from(uniqueWatchSet);
-
-  const [allMetadata, setAllMetadata] = useState<VideoMetadata[]>([]);
+  const [allMetadata, setAllMetadata] = useState<
+    (VideoMetadata & { filename: string })[]
+  >([]);
   useEffect(() => {
     async function fetchJSON() {
       const allMetadata = await Promise.all(
-        uniqueWatchList.map(async (_, idx) => {
+        Array.from({ length: 12 }).map(async (_, idx) => {
           try {
             const response = await fetch(`stock-video-${idx + 1}.json`);
-            const data: VideoMetadata = await response.json();
-            return data;
+            const metadata: VideoMetadata = await response.json();
+            return { ...metadata, filename: `stock-video-${idx + 1}.json` };
           } catch (error) {
-            return { description: "", name: "" };
+            return { description: "", name: "", filename: "" };
           }
         })
       );
       setAllMetadata(allMetadata);
     }
     fetchJSON();
-  }, [uniqueWatchList]);
+  }, []);
 
   return (
     <div className="flex flex-wrap gap-10 justify-evenly">
-      {uniqueWatchList.map((filename, idx) => {
+      {watchHistory.map((watchHistory, idx) => {
         return (
-          <CardContainer className="inter-var" key={filename}>
+          <CardContainer className="inter-var" key={idx}>
             <CardBody className="bg-gray-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-auto sm:w-[30rem] h-auto rounded-xl p-6 border  ">
               <CardItem
                 translateZ="50"
@@ -65,7 +58,7 @@ export default function WatchLater() {
                 {allMetadata[idx]?.description}
               </CardItem>
               <CardItem translateZ="100" className="w-full mt-4">
-                <ThumbnailGenerator videoSrc={filename} />
+                <ThumbnailGenerator videoSrc={watchHistory.videoName} />
               </CardItem>
               <div className="flex justify-end items-center mt-20">
                 <CardItem
@@ -73,7 +66,9 @@ export default function WatchLater() {
                   as="button"
                   className="px-4 py-2 rounded-xl bg-black dark:bg-white dark:text-black text-white text-xs font-bold"
                 >
-                  <Link href={`/video/${filename}`}>Watch now</Link>
+                  <Link href={`/video/${watchHistory.videoName}`}>
+                    Watch now
+                  </Link>
                 </CardItem>
               </div>
             </CardBody>
